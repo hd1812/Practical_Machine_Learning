@@ -17,3 +17,4 @@ predictions
 
 ##confusionMatrix
 confusionMatrix(predictions,testing$type)
+

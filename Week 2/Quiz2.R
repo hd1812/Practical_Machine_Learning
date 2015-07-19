@@ -13,19 +13,33 @@ library(caret)
 library(AppliedPredictiveModeling)
 set.seed(3433)
 data(AlzheimerDisease)
-dummies<-dummyVars(diagnosis~)
 adData = data.frame(diagnosis,predictors)
+inTrain = createDataPartition(adData$diagnosis, p = 3/4)[[1]]
+training = adData[ inTrain,]
+testing = adData[-inTrain,]
+preProcPCA<-preProcess(training[58:69],method="pca",thresh=0.90)
+preProcPCA
 
 ##Q4 unresolved
-adData[adData$diagnosis=="Control",]$diagnosis<-1
-adData[adData$diagnosis=="Impaired",]$diagnosis<-0
+library(caret)
+library(AppliedPredictiveModeling)
+set.seed(3433)
+data(AlzheimerDisease)
+adData = data.frame(diagnosis,predictors)
 inTrain = createDataPartition(adData$diagnosis, p = 3/4)[[1]]
 training = adData[ inTrain,]
 testing = adData[-inTrain,]
 
+##PCA:
+##preProcess Returns a list of evidence for PCA transmission
 preProcPCA<-preProcess(training[58:69],method="pca",thresh=0.80)
-trainPC<-predict(preProcPCA,training$diagnosis)
+trainPC<-predict(preProcPCA,training[58:69])
+##train the model using data after PCA
 modelFit<-train(training$diagnosis~.,method="glm",data=trainPC)
+testPC<-predict(preProcPCA,newdata=testing[58:69])
+confusionMatrix(testing$diagnosis,predict(modelFit,testPC))##Accuracy 0.7195
 
-testPCA<-predict(preProc,)
-confusionMatrix(testing#diagnosis,predict(modelFit,testPCA))
+##Non-PCA
+##train the model using data without
+modelFit<-train(training$diagnosis~.,method="glm",training[58:69])
+confusionMatrix(testing$diagnosis,predict(modelFit,testing[58:69]))##Accuracy 0.6463
